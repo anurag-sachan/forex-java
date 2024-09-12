@@ -1,16 +1,32 @@
 package com.java;
 
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
 
 public class Main {
     public static void main(String[] args) throws IOException, InterruptedException {
+        Properties props = new Properties();
+        String pathConfigFile="/Users/anurag/Desktop/forex/src/main/java/com/java/config.properties";
+        try (InputStream input = new FileInputStream(pathConfigFile)) {
+            props.load(input);
+        }
+        
+        String propCookie = props.getProperty("op-cookie");
+        prop.openPosition(propCookie);
+
+        target.newOP();
+        target.setTargets();
+        target.cleanup();
+
         while (true) {
             strategy();
+            Thread.sleep(300000);
         }
     }
 
     public static void strategy() throws IOException, InterruptedException{
-        System.out.println();
         String[] pairs={"XAUUSD","EURUSD","GBPUSD","USDJPY"};
         for(String pair : pairs){
             float cci30m= Algo.getCCI(pair, "|30");
@@ -20,7 +36,45 @@ public class Main {
 
             float LTP= Algo.LTP(pair);
 
-            System.out.printf(pair+": "+LTP+"\n"+cci30m+" "+cci4h+" "+cci1d+" "+cci1w+"\n");
+            System.out.println();
+            System.out.printf("\n"+pair+": "+LTP+"\n"+cci1w+" "+cci1d+" "+cci4h+" "+cci30m+"\n");
+            if((cci4h>90 && cci4h<110) || (cci1d>90 && cci1d<110) || (cci1w>90 && cci1w<110)) System.out.println("🔥ZONE🔥");
+            // if(pair.equals("XAUUSD")){
+            //     String[] vals= Filehandler.readFromFile("XU").split(" ");
+            //     for(String val: vals){
+            //         float num= Float.parseFloat(val);
+            //         float max= (float)(num + num*0.10);
+            //         float min= (float)(num - num*0.10);
+            //         if(LTP>min && LTP<max) System.out.println("💎 HIGH VOLUME ZONE : "+num);
+            //     }
+            // }
+            // if(pair.equals("EURUSD")){
+            //     String[] vals= Filehandler.readFromFile("EU").split(" ");
+            //     for(String val: vals){
+            //         float num= Float.parseFloat(val);
+            //         float max= (float)(num + num*0.10);
+            //         float min= (float)(num - num*0.10);
+            //         if(LTP>min && LTP<max) System.out.println("💎 HIGH VOLUME ZONE : "+num);
+            //     }
+            // }
+            // if(pair.equals("GBPUSD")){
+            //     String[] vals= Filehandler.readFromFile("GU").split(" ");
+            //     for(String val: vals){
+            //         float num= Float.parseFloat(val);
+            //         float max= (float)(num + num*0.10);
+            //         float min= (float)(num - num*0.10);
+            //         if(LTP>min && LTP<max) System.out.println("💎 HIGH VOLUME ZONE : "+num);
+            //     }
+            // }
+            // if(pair.equals("USDJPY")){
+            //     String[] vals= Filehandler.readFromFile("UJ").split(" ");
+            //     for(String val: vals){
+            //         float num= Float.parseFloat(val);
+            //         float max= (float)(num + num*0.10);
+            //         float min= (float)(num - num*0.10);
+            //         if(LTP>min && LTP<max) System.out.println("💎 HIGH VOLUME ZONE : "+num);
+            //     }
+            // }
 
             if(cci30m>=-100 && cci30m<=100){
                 if(pair.equals("XAUUSD") && !Filehandler.readFromFile("XU30").split("")[2].equals("0")) Filehandler.writeToFile("XU30", Filehandler.readFromFile("XU30").concat("0").substring(1, 4));
@@ -204,13 +258,17 @@ public class Main {
                 System.out.print(trend1d==1?" D: 🟢 ":trend1d==-1?" D: 🔴 ":" Neutral ");
                 System.out.print(trend4h==1?" 4H: 🟢 ":trend4h==-1?" 4H: 🔴 ":" Neutral ");
                 if(trend30 == trend1d){
-                    if(cci4h>100 && cci4h<Float.parseFloat(Filehandler.readFromFile("CCI4HXU"))/2) temp4h=trend4h*-1;
-                    if(cci4h<100 && cci4h>Float.parseFloat(Filehandler.readFromFile("CCI4HXU"))/2) temp4h=trend4h*-1;
-                    System.out.print(temp4h==1?" 🟢 ":temp4h==-1?" 🔴 ":" Neutral ");
+                    if(cci4h>100 && cci4h<100+(Float.parseFloat(Filehandler.readFromFile("CCI4HXU"))-100)/2) temp4h=trend4h*-1;
+                    if(cci4h<-100 && cci4h>-100+(Float.parseFloat(Filehandler.readFromFile("CCI4HXU"))+100)/2) temp4h=trend4h*-1;
+                    System.out.print(temp4h==1?"🟢":temp4h==-1?"🔴":"Neutral");
                 }
                 System.out.print(trend30==1?" 30M: 🟢 ":trend30==-1?" 30M: 🔴 ":" Neutral ");
-                System.out.println();
+                System.out.print(" | ");
+                if(trend30 == trend1d){
+                    System.out.println(trend1d == temp4h? "ENTRY 🔥": trend1d == -1*temp4h? "EXIT ⚠️" : "");
+                }
             }
+            
             if(pair.startsWith("E")){
                 trend30 = Filehandler.readFromFile("EU30").equals("102") || Filehandler.readFromFile("EU30").equals("202") || Filehandler.readFromFile("EU30").equals("010")? 1:Filehandler.readFromFile("EU30").equals("201") || Filehandler.readFromFile("EU30").equals("101") || Filehandler.readFromFile("EU30").equals("020")?-1:0;
                 trend4h = Filehandler.readFromFile("EU4H").equals("102") || Filehandler.readFromFile("EU4H").equals("202") || Filehandler.readFromFile("EU4H").equals("010")? 1:Filehandler.readFromFile("EU4H").equals("201") || Filehandler.readFromFile("EU4H").equals("101") || Filehandler.readFromFile("EU4H").equals("020")?-1:0;
@@ -221,13 +279,17 @@ public class Main {
                 System.out.print(trend1d==1?" D: 🟢 ":trend1d==-1?" D: 🔴 ":" Neutral ");
                 System.out.print(trend4h==1?" 4H: 🟢 ":trend4h==-1?" 4H: 🔴 ":" Neutral ");
                 if(trend30 == trend1d){
-                    if(cci4h>100 && cci4h<Float.parseFloat(Filehandler.readFromFile("CCI4HEU"))/2) temp4h=trend4h*-1;
-                    if(cci4h<100 && cci4h>Float.parseFloat(Filehandler.readFromFile("CCI4HEU"))/2) temp4h=trend4h*-1;
-                    System.out.print(temp4h==1?" 🟢 ":temp4h==-1?" 🔴 ":" Neutral ");
+                    if(cci4h>100 && cci4h<100+(Float.parseFloat(Filehandler.readFromFile("CCI4HEU"))-100)/2) temp4h=trend4h*-1;
+                    if(cci4h<-100 && cci4h>-100+(Float.parseFloat(Filehandler.readFromFile("CCI4HEU"))+100)/2) temp4h=trend4h*-1;
+                    System.out.print(temp4h==1?"🟢":temp4h==-1?"🔴":"Neutral");
                 }
-                System.out.print(trend30==1?" 30M: 🟢 ":trend30==-1?" 30M: 🔴 ":" Neutral ");
-                System.out.println();
+                System.out.print(trend30==1?" 30M: 🟢 ":trend30==-1?" 30M: 🔴":" Neutral ");
+                System.out.print(" | ");
+                if(trend30 == trend1d){
+                    System.out.print(trend1d == temp4h? "ENTRY 🔥": trend1d == -1*temp4h? "EXIT ⚠️" : "");
+                }
             }
+
             if(pair.startsWith("G")){
                 trend30 = Filehandler.readFromFile("GU30").equals("102") || Filehandler.readFromFile("GU30").equals("202") || Filehandler.readFromFile("GU30").equals("010")? 1:Filehandler.readFromFile("GU30").equals("201") || Filehandler.readFromFile("GU30").equals("101") || Filehandler.readFromFile("GU30").equals("020")?-1:0;
                 trend4h = Filehandler.readFromFile("GU4H").equals("102") || Filehandler.readFromFile("GU4H").equals("202") || Filehandler.readFromFile("GU4H").equals("010")? 1:Filehandler.readFromFile("GU4H").equals("201") || Filehandler.readFromFile("GU4H").equals("101") || Filehandler.readFromFile("GU4H").equals("020")?-1:0;
@@ -238,13 +300,17 @@ public class Main {
                 System.out.print(trend1d==1?" D: 🟢 ":trend1d==-1?" D: 🔴 ":" Neutral ");
                 System.out.print(trend4h==1?" 4H: 🟢 ":trend4h==-1?" 4H: 🔴 ":" Neutral ");
                 if(trend30 == trend1d){
-                    if(cci4h>100 && cci4h<Float.parseFloat(Filehandler.readFromFile("CCI4HGU"))/2) temp4h=trend4h*-1;
-                    if(cci4h<100 && cci4h>Float.parseFloat(Filehandler.readFromFile("CCI4HGU"))/2) temp4h=trend4h*-1;
-                    System.out.print(temp4h==1?" 🟢 ":temp4h==-1?" 🔴 ":" Neutral ");
+                    if(cci4h>100 && cci4h<100+(Float.parseFloat(Filehandler.readFromFile("CCI4HGU"))-100)/2) temp4h=trend4h*-1;
+                    if(cci4h<-100 && cci4h>-100+(Float.parseFloat(Filehandler.readFromFile("CCI4HGU"))+100)/2) temp4h=trend4h*-1;
+                    System.out.print(temp4h==1?"🟢":temp4h==-1?"🔴":"Neutral");
                 }
                 System.out.print(trend30==1?" 30M: 🟢 ":trend30==-1?" 30M: 🔴 ":" Neutral ");
-                System.out.println();
+                System.out.print(" | ");
+                if(trend30 == trend1d){
+                    System.out.print(trend1d == temp4h? "ENTRY 🔥": trend1d == -1*temp4h? "EXIT ⚠️" : "");
+                }
             }
+
             if(pair.startsWith("U")){
                 trend30 = Filehandler.readFromFile("UJ30").equals("102") || Filehandler.readFromFile("UJ30").equals("202") || Filehandler.readFromFile("UJ30").equals("010")? 1:Filehandler.readFromFile("UJ30").equals("201") || Filehandler.readFromFile("UJ30").equals("101") || Filehandler.readFromFile("UJ30").equals("020")?-1:0;
                 trend4h = Filehandler.readFromFile("UJ4H").equals("102") || Filehandler.readFromFile("UJ4H").equals("202") || Filehandler.readFromFile("UJ4H").equals("010")? 1:Filehandler.readFromFile("UJ4H").equals("201") || Filehandler.readFromFile("UJ4H").equals("101") || Filehandler.readFromFile("UJ4H").equals("020")?-1:0;
@@ -255,14 +321,18 @@ public class Main {
                 System.out.print(trend1d==1?" D: 🟢 ":trend1d==-1?" D: 🔴 ":" Neutral ");
                 System.out.print(trend4h==1?" 4H: 🟢 ":trend4h==-1?" 4H: 🔴 ":" Neutral ");
                 if(trend30 == trend1d){
-                    if(cci4h>100 && cci4h<Float.parseFloat(Filehandler.readFromFile("CCI4HUJ"))/2) temp4h=trend4h*-1;
-                    if(cci4h<100 && cci4h>Float.parseFloat(Filehandler.readFromFile("CCI4HUJ"))/2) temp4h=trend4h*-1;
-                    System.out.print(temp4h==1?" 🟢 ":temp4h==-1?" 🔴 ":" Neutral ");
+                    if(cci4h>100 && cci4h<100+(Float.parseFloat(Filehandler.readFromFile("CCI4HUJ"))-100)/2) temp4h=trend4h*-1;
+                    if(cci4h<-100 && cci4h>-100+(Float.parseFloat(Filehandler.readFromFile("CCI4HUJ"))+100)/2) temp4h=trend4h*-1;
+                    System.out.print(temp4h==1?"🟢":temp4h==-1?"🔴":"Neutral");
                 }
                 System.out.print(trend30==1?" 30M: 🟢 ":trend30==-1?" 30M: 🔴 ":" Neutral ");
-                System.out.println();
+                System.out.print(" | ");
+                if(trend30 == trend1d){
+                    System.out.print(trend1d == temp4h? "ENTRY 🔥": trend1d == -1*temp4h? "EXIT ⚠️" : "");
+                }
             }
         }
+        System.out.println();
         System.out.println(" ------------------------------------------ ");
     }
 }

@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.List;
 
 public class Filehandler {
     public static String readFromFile(String str) throws IOException {
@@ -25,6 +26,7 @@ public class Filehandler {
         br.close();
         return "FAILED TO UPDATE <database.txt>.";
     }
+
     public static void writeToFile(String str, String newValue) throws IOException {
         String file="/Users/anurag/Desktop/forex/src/main/java/com/java/database.txt";
         File tempFile = new File(file + ".temp");
@@ -59,6 +61,25 @@ public class Filehandler {
             ;
         } else {
             System.out.println("FAILED TO UPDATE <database.txt>.");
+        }
+    }
+
+    public static void writeToOPCSV(List<List<String>> op, boolean append) throws IOException {
+        String csvFile = "/Users/anurag/Desktop/forex/src/main/java/com/java/op.csv";
+        try (FileWriter csvWriter = new FileWriter(csvFile, append)) {
+            for (List<String> position : op) {
+                csvWriter.append(String.format("%s,%s,%s,%s,%s,%s\n",
+                position.get(0),position.get(1),position.get(2),position.get(3),position.get(4),position.get(5)));
+            }
+        }
+    }
+
+    public static void writeToTradeCSV(List<String> list, boolean append) throws IOException {
+        String csvFile = "/Users/anurag/Desktop/forex/src/main/java/com/java/trades.csv";
+        try (FileWriter csvWriter = new FileWriter(csvFile, append)) {
+            for (String position : list) {
+                csvWriter.append(position);
+            }
         }
     }
 }
