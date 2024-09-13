@@ -10,7 +10,7 @@ import java.util.List;
 
 public class Filehandler {
     public static String readFromFile(String str) throws IOException {
-        String file="/Users/anurag/Desktop/forex/src/main/java/com/java/database.txt";
+        String file="/Users/anurag/Desktop/forex/src/main/java/com/java/data/database.txt";
         BufferedReader br=new BufferedReader(new FileReader(file));
         String line;
         while ((line=br.readLine())!=null){
@@ -28,7 +28,7 @@ public class Filehandler {
     }
 
     public static void writeToFile(String str, String newValue) throws IOException {
-        String file="/Users/anurag/Desktop/forex/src/main/java/com/java/database.txt";
+        String file="/Users/anurag/Desktop/forex/src/main/java/com/java/data/database.txt";
         File tempFile = new File(file + ".temp");
 
         try (BufferedReader br = new BufferedReader(new FileReader(file));
@@ -65,7 +65,7 @@ public class Filehandler {
     }
 
     public static void writeToOPCSV(List<List<String>> op, boolean append) throws IOException {
-        String csvFile = "/Users/anurag/Desktop/forex/src/main/java/com/java/op.csv";
+        String csvFile = "/Users/anurag/Desktop/forex/src/main/java/com/java/data/op.csv";
         try (FileWriter csvWriter = new FileWriter(csvFile, append)) {
             for (List<String> position : op) {
                 csvWriter.append(String.format("%s,%s,%s,%s,%s,%s\n",
@@ -75,7 +75,7 @@ public class Filehandler {
     }
 
     public static void writeToTradeCSV(List<String> list, boolean append) throws IOException {
-        String csvFile = "/Users/anurag/Desktop/forex/src/main/java/com/java/trades.csv";
+        String csvFile = "/Users/anurag/Desktop/forex/src/main/java/com/java/data/trades.csv";
         try (FileWriter csvWriter = new FileWriter(csvFile, append)) {
             for (String position : list) {
                 csvWriter.append(position);
