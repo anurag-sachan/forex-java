@@ -21,8 +21,6 @@ public class prop {
     static HttpClient client = HttpClient.newHttpClient();
     
     public static void openPosition() throws IOException, InterruptedException {
-    // public static List<List<String>> openPosition() throws IOException, InterruptedException {
-
         Properties props = new Properties();
         String pathConfigFile="/Users/anurag/Desktop/forex/src/main/java/com/java/config/config.properties";
         try (InputStream input = new FileInputStream(pathConfigFile)) {
@@ -56,7 +54,7 @@ public class prop {
             long startTime = System.currentTimeMillis();
             System.out.print("Enter latest Open Position Cookies: ");
             Scanner sc=new Scanner(System.in);
-            while ((System.currentTimeMillis() - startTime) < 5000 && System.in.available() == 0) {
+            while ((System.currentTimeMillis() - startTime) < 10000 && System.in.available() == 0) {
                 Thread.sleep(1000);
             }
             if (System.in.available() > 0){

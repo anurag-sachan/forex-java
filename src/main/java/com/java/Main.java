@@ -424,9 +424,12 @@ public class Main {
         System.out.println();
         System.out.print("\n🚀 TARGETs Achieved: ");
         Iterator setVals = set.iterator(); 
+        String targetVals="";
         while (setVals.hasNext()) { 
+            targetVals=targetVals.concat(setVals.next()+" ");
             System.out.print(setVals.next()+" "); 
         }
+        if(!targetVals.isEmpty()) Email.sendEmail(targetVals);
         System.out.println();
         System.out.println(" ------------------------------------------ ");
     }
