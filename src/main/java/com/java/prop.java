@@ -29,46 +29,52 @@ public class prop {
 
         String propCookie = props.getProperty("op-cookie");
         
-        String url = "https://backend.fundingpips.com/api/trading_accounts/100005904/open_positions?page=1";
-        List<List<String>> list = new ArrayList<>();
-        HttpRequest request = HttpRequest.newBuilder()
-                .GET()
-                .uri(URI.create(url))
-                .header("Cookie", propCookie)
-                .build();
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());        
-        if(response.statusCode()==200){
-        ObjectMapper objectMapper = new ObjectMapper();
-        JsonNode jsonNode = objectMapper.readTree(response.body());
-            String[] query = {"identifier","symbol","action","entry_price","stop_loss_price","opened_at"};
-            for(JsonNode node: jsonNode){
-                List<String> tempList= new ArrayList<>();
-                for(String q: query) tempList.add(node.get(q).asText());
-                list.add(tempList);
-                System.out.println();
-            }
-            Filehandler.writeToOPCSV(list, false);
-        }
-        else if(response.statusCode()==401){
-            String token="";
-            long startTime = System.currentTimeMillis();
-            System.out.print("Enter latest Open Position Cookies: ");
-            Scanner sc=new Scanner(System.in);
-            while ((System.currentTimeMillis() - startTime) < 10000 && System.in.available() == 0) {
-                Thread.sleep(1000);
-            }
-            if (System.in.available() > 0){
-                token = sc.nextLine();
-                try (InputStream input = new FileInputStream(pathConfigFile)) {
-                    props.load(input);
+        try {
+            String url = "https://backend.fundingpips.com/api/trading_accounts/100051131/open_positions?page=1";
+            List<List<String>> list = new ArrayList<>();
+            HttpRequest request = HttpRequest.newBuilder()
+            .GET()
+            .uri(URI.create(url))
+            .header("Cookie", propCookie)
+            .build();
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());        
+            if(response.statusCode()==200){
+                ObjectMapper objectMapper = new ObjectMapper();
+                JsonNode jsonNode = objectMapper.readTree(response.body());
+                String[] query = {"identifier","symbol","action","entry_price","stop_loss_price","opened_at"};
+                for(JsonNode node: jsonNode){
+                    List<String> tempList= new ArrayList<>();
+                    for(String q: query) tempList.add(node.get(q).asText());
+                    list.add(tempList);
+                    System.out.println();
                 }
-                props.setProperty("op-cookie", token);
-                try (OutputStream output = new FileOutputStream(pathConfigFile)) {
-                    props.store(output, null);
-                }
-                openPosition();
+                Filehandler.writeToOPCSV(list, false);
             }
-            else return;
+            else if(response.statusCode()==401){
+                String token="";
+                long startTime = System.currentTimeMillis();
+                System.out.print("Enter latest Open Position Cookies: ");
+                Scanner sc=new Scanner(System.in);
+                while ((System.currentTimeMillis() - startTime) < 7000 && System.in.available() == 0) {
+                    Thread.sleep(1000);
+                }
+                if (System.in.available() > 0){
+                    token = sc.nextLine();
+                    try (InputStream input = new FileInputStream(pathConfigFile)) {
+                        props.load(input);
+                    }
+                    props.setProperty("op-cookie", token);
+                    try (OutputStream output = new FileOutputStream(pathConfigFile)) {
+                        props.store(output, null);
+                    }
+                    openPosition();
+                }
+                else return;
+            }
+        } catch (Exception e) {
+            System.err.println("Conection Timed Out. Check Internet Connection");
+            Thread.sleep(20000);
+            openPosition();
         }
     }
 }

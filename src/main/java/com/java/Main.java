@@ -2,6 +2,7 @@ package com.java;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -10,21 +11,35 @@ import java.util.List;
 public class Main {
     public static void main(String[] args) throws IOException, InterruptedException {
         while (true) {
-            prop.openPosition();
-            target.newOP();
-            target.setTargets();
-            target.cleanup();
-
-            strategy();
-            // Thread.sleep(3000);
-            Thread.sleep(300000);
+            Date date=new Date();
+            System.out.printf("-------------- %s --------------\n",date);
+            try{
+                iceberg();
+            }catch(Exception e){
+                System.err.println(e);
+                System.out.println("Error in the main thread. Retrying!");
+                Thread.sleep(2000);
+            }
         }
+    }
+
+    public static void iceberg() throws IOException, InterruptedException{
+        //for new accounts, change acc number in URL
+        prop.openPosition();
+        target.newOP();
+        target.setTargets();
+        target.cleanup();
+
+        strategy();
+        Thread.sleep(3000);
+        // Thread.sleep(300000);
     }
     
     static HashSet<String> set=new HashSet<>();
     public static void strategy() throws IOException, InterruptedException{
-        System.out.println(" ------------------------------------------ ");
+        // String[] pairs={"EURUSD","GBPUSD","USDJPY"};
         String[] pairs={"XAUUSD","EURUSD","GBPUSD","USDJPY"};
+        String mailEntry="";
         for(String pair : pairs){
             float cci30m= Algo.getCCI(pair, "|30");
             float cci4h= Algo.getCCI(pair, "|240");
@@ -32,6 +47,7 @@ public class Main {
             float cci1w= Algo.getCCI(pair, "|1W");
             
             float LTP= Algo.LTP(pair);
+            Algo.alerts(pair, LTP);
             
             System.out.println();
             System.out.printf("\n"+pair+": "+LTP+"\n"+cci1w+" "+cci1d+" "+cci4h+" "+cci30m+"\n");
@@ -41,11 +57,21 @@ public class Main {
             if(map.containsKey(pair)){ 
                 targets= map.get(pair);
                 int sizeTargets= targets.size();
+
+                //cci-targets
+                // String symbol="";
+                // if(pair.startsWith("X")) symbol="XU";
+                // if(pair.startsWith("E")) symbol="EU";
+                // if(pair.startsWith("G")) symbol="GU";
+                // if(pair.startsWith("U")) symbol="UJ";
+                // symbol="CCI4H"+symbol;
+
                 if(targets.get(0).equals("buy")){
-                    if(cci4h>100 || cci1d>100 || cci1w>100){
-                        set.add(pair);
-                        System.out.println("🚀 CCI TARGET. TRAIL SL ⚠️");
-                    }
+                    // if(cci4h>100 && cci4h<100+(Float.parseFloat(Filehandler.readFromFile(symbol))-100)/2){
+                    // // if(cci30m>100 || cci4h>100 || cci1d>100 || cci1w>100){
+                    //     // set.add(pair);
+                    //     System.out.println("🚀 CCI TARGET. TRAIL SL ⚠️");
+                    // }
                     for(int i=1; i<sizeTargets; i++){
                         if(LTP>Float.parseFloat(targets.get(i))){
                             set.add(pair);
@@ -54,10 +80,11 @@ public class Main {
                     }
                 }
                 if(targets.get(0).equals("sell")){
-                    if(cci4h<-100 || cci1d<-100 || cci1w<-100){
-                        set.add(pair);
-                        System.out.println("🚀 CCI TARGET. TRAIL SL ⚠️");
-                    }
+                    // if(cci4h<-100 && cci4h>-100+(Float.parseFloat(Filehandler.readFromFile(symbol))+100)/2){
+                    // // if(cci30m<-100 || cci4h<-100 || cci1d<-100 || cci1w<-100){
+                    //     // set.add(pair);
+                    //     System.out.println("🚀 CCI TARGET. TRAIL SL ⚠️");
+                    // }
                     for(int i=1; i<sizeTargets; i++){
                         if(LTP<Float.parseFloat(targets.get(i))){
                             set.add(pair);
@@ -67,7 +94,8 @@ public class Main {
                 }
             }
 
-            if((cci4h>90 && cci4h<110) || (cci1d>90 && cci1d<110) || (cci1w>90 && cci1w<110)) System.out.println("🔥ZONE🔥");
+            // if((cci4h>90 && cci4h<110) || (cci1d>90 && cci1d<110) || (cci1w>90 && cci1w<110)) System.out.println("🔥ZONE🔥");
+
             // if(pair.equals("XAUUSD")){
             //     String[] vals= Filehandler.readFromFile("XU").split(" ");
             //     for(String val: vals){
@@ -284,33 +312,26 @@ public class Main {
                 trend1w = Filehandler.readFromFile("XU1W").equals("102") || Filehandler.readFromFile("XU1W").equals("202") || Filehandler.readFromFile("XU1W").equals("010")? 1:Filehandler.readFromFile("XU1W").equals("201") || Filehandler.readFromFile("XU1W").equals("101") || Filehandler.readFromFile("XU1W").equals("020")?-1:0;
                 int temp1w=0, temp1d=0, temp4h=0;
                 System.out.print(trend1w==1?" W: 🟢 ":trend1w==-1?" W: 🔴 ":" - ");
-                if(trend1w!=trend1d){
-                    if(cci1w>100 && cci1w<100+(Float.parseFloat(Filehandler.readFromFile("CCI1WXU"))-100)/2) temp1w=trend1d*-1;
-                    if(cci1w<-100 && cci1w>-100+(Float.parseFloat(Filehandler.readFromFile("CCI1WXU"))+100)/2) temp1w=trend1d*-1;
-                    System.out.print(temp1w==1?"🟢":temp1w==-1?"🔴":"-");
-                }
+                if(cci1w>100 && cci1w<100+(Float.parseFloat(Filehandler.readFromFile("CCI1WXU"))-100)/2) temp1w=trend1w*-1;
+                if(cci1w<-100 && cci1w>-100+(Float.parseFloat(Filehandler.readFromFile("CCI1WXU"))+100)/2) temp1w=trend1w*-1;
+                if(trend1w != temp1w) System.out.print(temp1w==1?"🟢":temp1w==-1?"🔴":"-");
+
                 System.out.print(trend1d==1?" D: 🟢 ":trend1d==-1?" D: 🔴 ":" - ");
-                if(trend1d!=trend4h){
-                    if(cci1d>100 && cci1d<100+(Float.parseFloat(Filehandler.readFromFile("CCI1DXU"))-100)/2) temp1d=trend1d*-1;
-                    if(cci1d<-100 && cci1d>-100+(Float.parseFloat(Filehandler.readFromFile("CCI1DXU"))+100)/2) temp1d=trend1d*-1;
-                    System.out.print(temp1d==1?"🟢":temp1d==-1?"🔴":"-");
-                }
+                if(cci1d>100 && cci1d<100+(Float.parseFloat(Filehandler.readFromFile("CCI1DXU"))-100)/2) temp1d=trend1d*-1;
+                if(cci1d<-100 && cci1d>-100+(Float.parseFloat(Filehandler.readFromFile("CCI1DXU"))+100)/2) temp1d=trend1d*-1;
+                if(trend1d != temp1d) System.out.print(temp1d==1?"🟢":temp1d==-1?"🔴":"-");
+
                 System.out.print(trend4h==1?" 4H: 🟢 ":trend4h==-1?" 4H: 🔴 ":" - ");
-                if(trend4h!=trend30){
-                    if(cci4h>100 && cci4h<100+(Float.parseFloat(Filehandler.readFromFile("CCI4HXU"))-100)/2) temp4h=trend4h*-1;
-                    if(cci4h<-100 && cci4h>-100+(Float.parseFloat(Filehandler.readFromFile("CCI4HXU"))+100)/2) temp4h=trend4h*-1;
-                    System.out.print(temp4h==1?"🟢":temp4h==-1?"🔴":"-");
-                }
-                // if(trend30 == trend1d){
-                //     if(cci4h>100 && cci4h<(100+(Float.parseFloat(Filehandler.readFromFile("CCI4HXU"))-100)/2)) temp4h=trend4h*-1;
-                //     if(cci4h<-100 && cci4h>(-100+(Float.parseFloat(Filehandler.readFromFile("CCI4HXU"))+100)/2)) temp4h=trend4h*-1;
-                //     System.out.print(temp4h==1?"🟢":temp4h==-1?"🔴":"-");
-                // }
+                if(cci4h>100 && cci4h<100+(Float.parseFloat(Filehandler.readFromFile("CCI4HXU"))-100)/2) temp4h=trend4h*-1;
+                if(cci4h<-100 && cci4h>-100+(Float.parseFloat(Filehandler.readFromFile("CCI4HXU"))+100)/2) temp4h=trend4h*-1;
+                if(trend4h != temp4h) System.out.print(temp4h==1?"🟢":temp4h==-1?"🔴":"-");
+
                 System.out.print(trend30==1?" 30M: 🟢 ":trend30==-1?" 30M: 🔴 ":" - ");
-                System.out.print(" | ");
-                if(trend30 == trend1d){
-                    System.out.println(trend1d == temp4h? "ENTRY 🔥": trend1d == -1*temp4h? "EXIT ⚠️" : "");
-                }
+                // System.out.print(" | ");
+                // if(trend1w == trend1d && trend1d==temp4h && temp4h==trend30){
+                //     mailEntry=mailEntry.concat(pair+" ");
+                //     System.out.println("ENTRY 🔥");
+                // }
             }
             
             if(pair.startsWith("E")){
@@ -320,33 +341,26 @@ public class Main {
                 trend1w = Filehandler.readFromFile("EU1W").equals("102") || Filehandler.readFromFile("EU1W").equals("202") || Filehandler.readFromFile("EU1W").equals("010")? 1:Filehandler.readFromFile("EU1W").equals("201") || Filehandler.readFromFile("EU1W").equals("101") || Filehandler.readFromFile("EU1W").equals("020")?-1:0;
                 int temp1w=0, temp1d=0, temp4h=0;
                 System.out.print(trend1w==1?" W: 🟢 ":trend1w==-1?" W: 🔴 ":" - ");
-                if(trend1w!=trend1d){
-                    if(cci1w>100 && cci1w<100+(Float.parseFloat(Filehandler.readFromFile("CCI1WEU"))-100)/2) temp1w=trend1d*-1;
-                    if(cci1w<-100 && cci1w>-100+(Float.parseFloat(Filehandler.readFromFile("CCI1WEU"))+100)/2) temp1w=trend1d*-1;
-                    System.out.print(temp1w==1?"🟢":temp1w==-1?"🔴":"-");
-                }
+                if(cci1w>100 && cci1w<100+(Float.parseFloat(Filehandler.readFromFile("CCI1WEU"))-100)/2) temp1w=trend1w*-1;
+                if(cci1w<-100 && cci1w>-100+(Float.parseFloat(Filehandler.readFromFile("CCI1WEU"))+100)/2) temp1w=trend1w*-1;
+                if(trend1w != temp1w) System.out.print(temp1w==1?"🟢":temp1w==-1?"🔴":"-");
+
                 System.out.print(trend1d==1?" D: 🟢 ":trend1d==-1?" D: 🔴 ":" - ");
-                if(trend1d!=trend4h){
-                    if(cci1d>100 && cci1d<100+(Float.parseFloat(Filehandler.readFromFile("CCI1DEU"))-100)/2) temp1d=trend1d*-1;
-                    if(cci1d<-100 && cci1d>-100+(Float.parseFloat(Filehandler.readFromFile("CCI1DEU"))+100)/2) temp1d=trend1d*-1;
-                    System.out.print(temp1d==1?"🟢":temp1d==-1?"🔴":"-");
-                }
+                if(cci1d>100 && cci1d<100+(Float.parseFloat(Filehandler.readFromFile("CCI1DEU"))-100)/2) temp1d=trend1d*-1;
+                if(cci1d<-100 && cci1d>-100+(Float.parseFloat(Filehandler.readFromFile("CCI1DEU"))+100)/2) temp1d=trend1d*-1;
+                if(trend1d != temp1d) System.out.print(temp1d==1?"🟢":temp1d==-1?"🔴":"-");
+
                 System.out.print(trend4h==1?" 4H: 🟢 ":trend4h==-1?" 4H: 🔴 ":" - ");
-                if(trend4h!=trend30){
-                    if(cci4h>100 && cci4h<100+(Float.parseFloat(Filehandler.readFromFile("CCI4HEU"))-100)/2) temp4h=trend4h*-1;
-                    if(cci4h<-100 && cci4h>-100+(Float.parseFloat(Filehandler.readFromFile("CCI4HEU"))+100)/2) temp4h=trend4h*-1;
-                    System.out.print(temp4h==1?"🟢":temp4h==-1?"🔴":"-");
-                }
-                // if(trend30 == trend1d){
-                //     if(cci4h>100 && cci4h<100+(Float.parseFloat(Filehandler.readFromFile("CCI4HEU"))-100)/2) temp4h=trend4h*-1;
-                //     if(cci4h<-100 && cci4h>-100+(Float.parseFloat(Filehandler.readFromFile("CCI4HEU"))+100)/2) temp4h=trend4h*-1;
-                //     System.out.print(temp4h==1?"🟢":temp4h==-1?"🔴":"-");
-                // }
+                if(cci4h>100 && cci4h<100+(Float.parseFloat(Filehandler.readFromFile("CCI4HEU"))-100)/2) temp4h=trend4h*-1;
+                if(cci4h<-100 && cci4h>-100+(Float.parseFloat(Filehandler.readFromFile("CCI4HEU"))+100)/2) temp4h=trend4h*-1;
+                if(trend4h != temp4h) System.out.print(temp4h==1?"🟢":temp4h==-1?"🔴":"-");
+
                 System.out.print(trend30==1?" 30M: 🟢 ":trend30==-1?" 30M: 🔴":" - ");
-                System.out.print(" | ");
-                if(trend30 == trend1d){
-                    System.out.print(trend1d == temp4h? "ENTRY 🔥": trend1d == -1*temp4h? "EXIT ⚠️" : "");
-                }
+                // System.out.print(" | ");
+                // if(trend1w == trend1d && trend1d==temp4h && temp4h==trend30){
+                //     mailEntry=mailEntry.concat(pair+" ");
+                //     System.out.println("ENTRY 🔥");
+                // }
             }
 
             if(pair.startsWith("G")){
@@ -356,33 +370,26 @@ public class Main {
                 trend1w = Filehandler.readFromFile("GU1W").equals("102") || Filehandler.readFromFile("GU1W").equals("202") || Filehandler.readFromFile("GU1W").equals("010")? 1:Filehandler.readFromFile("GU1W").equals("201") || Filehandler.readFromFile("GU1W").equals("101") || Filehandler.readFromFile("GU1W").equals("020")?-1:0;
                 int temp1w=0, temp1d=0, temp4h=0;
                 System.out.print(trend1w==1?" W: 🟢 ":trend1w==-1?" W: 🔴 ":" - ");
-                if(trend1w!=trend1d){
-                    if(cci1w>100 && cci1w<100+(Float.parseFloat(Filehandler.readFromFile("CCI1WGU"))-100)/2) temp1w=trend1d*-1;
-                    if(cci1w<-100 && cci1w>-100+(Float.parseFloat(Filehandler.readFromFile("CCI1WGU"))+100)/2) temp1w=trend1d*-1;
-                    System.out.print(temp1w==1?"🟢":temp1w==-1?"🔴":"-");
-                }
+                if(cci1w>100 && cci1w<100+(Float.parseFloat(Filehandler.readFromFile("CCI1WGU"))-100)/2) temp1w=trend1w*-1;
+                if(cci1w<-100 && cci1w>-100+(Float.parseFloat(Filehandler.readFromFile("CCI1WGU"))+100)/2) temp1w=trend1w*-1;
+                if(trend1w != temp1w) System.out.print(temp1w==1?"🟢":temp1w==-1?"🔴":"-");
+
                 System.out.print(trend1d==1?" D: 🟢 ":trend1d==-1?" D: 🔴 ":" - ");
-                if(trend1d!=trend4h){
-                    if(cci1d>100 && cci1d<100+(Float.parseFloat(Filehandler.readFromFile("CCI1DGU"))-100)/2) temp1d=trend1d*-1;
-                    if(cci1d<-100 && cci1d>-100+(Float.parseFloat(Filehandler.readFromFile("CCI1DGU"))+100)/2) temp1d=trend1d*-1;
-                    System.out.print(temp1d==1?"🟢":temp1d==-1?"🔴":"-");
-                }
+                if(cci1d>100 && cci1d<100+(Float.parseFloat(Filehandler.readFromFile("CCI1DGU"))-100)/2) temp1d=trend1d*-1;
+                if(cci1d<-100 && cci1d>-100+(Float.parseFloat(Filehandler.readFromFile("CCI1DGU"))+100)/2) temp1d=trend1d*-1;
+                if(trend1d != temp1d) System.out.print(temp1d==1?"🟢":temp1d==-1?"🔴":"-");
+
                 System.out.print(trend4h==1?" 4H: 🟢 ":trend4h==-1?" 4H: 🔴 ":" - ");
-                if(trend4h!=trend30){
-                    if(cci4h>100 && cci4h<100+(Float.parseFloat(Filehandler.readFromFile("CCI4HGU"))-100)/2) temp4h=trend4h*-1;
-                    if(cci4h<-100 && cci4h>-100+(Float.parseFloat(Filehandler.readFromFile("CCI4HGU"))+100)/2) temp4h=trend4h*-1;
-                    System.out.print(temp4h==1?"🟢":temp4h==-1?"🔴":"-");
-                }
-                // if(trend30 == trend1d){
-                //     if(cci4h>100 && cci4h<100+(Float.parseFloat(Filehandler.readFromFile("CCI4HGU"))-100)/2) temp4h=trend4h*-1;
-                //     if(cci4h<-100 && cci4h>-100+(Float.parseFloat(Filehandler.readFromFile("CCI4HGU"))+100)/2) temp4h=trend4h*-1;
-                //     System.out.print(temp4h==1?"🟢":temp4h==-1?"🔴":"-");
-                // }
+                if(cci4h>100 && cci4h<100+(Float.parseFloat(Filehandler.readFromFile("CCI4HGU"))-100)/2) temp4h=trend4h*-1;
+                if(cci4h<-100 && cci4h>-100+(Float.parseFloat(Filehandler.readFromFile("CCI4HGU"))+100)/2) temp4h=trend4h*-1;
+                if(trend4h != temp4h) System.out.print(temp4h==1?"🟢":temp4h==-1?"🔴":"-");
+
                 System.out.print(trend30==1?" 30M: 🟢 ":trend30==-1?" 30M: 🔴 ":" - ");
-                System.out.print(" | ");
-                if(trend30 == trend1d){
-                    System.out.print(trend1d == temp4h? "ENTRY 🔥": trend1d == -1*temp4h? "EXIT ⚠️" : "");
-                }
+                // System.out.print(" | ");
+                // if(trend1w == trend1d && trend1d==temp4h && temp4h==trend30){
+                //     mailEntry=mailEntry.concat(pair+" ");
+                //     System.out.println("ENTRY 🔥");
+                // }
             }
 
             if(pair.startsWith("U")){
@@ -392,33 +399,26 @@ public class Main {
                 trend1w = Filehandler.readFromFile("UJ1W").equals("102") || Filehandler.readFromFile("UJ1W").equals("202") || Filehandler.readFromFile("UJ1W").equals("010")? 1:Filehandler.readFromFile("UJ1W").equals("201") || Filehandler.readFromFile("UJ1W").equals("101") || Filehandler.readFromFile("UJ1W").equals("020")?-1:0;
                 int temp1w=0, temp1d=0, temp4h=0;
                 System.out.print(trend1w==1?" W: 🟢 ":trend1w==-1?" W: 🔴 ":" - ");
-                if(trend1w!=trend1d){
-                    if(cci1w>100 && cci1w<100+(Float.parseFloat(Filehandler.readFromFile("CCI1WUJ"))-100)/2) temp1w=trend1d*-1;
-                    if(cci1w<-100 && cci1w>-100+(Float.parseFloat(Filehandler.readFromFile("CCI1WUJ"))+100)/2) temp1w=trend1d*-1;
-                    System.out.print(temp1w==1?"🟢":temp1w==-1?"🔴":"-");
-                }
+                if(cci1w>100 && cci1w<100+(Float.parseFloat(Filehandler.readFromFile("CCI1WUJ"))-100)/2) temp1w=trend1w*-1;
+                if(cci1w<-100 && cci1w>-100+(Float.parseFloat(Filehandler.readFromFile("CCI1WUJ"))+100)/2) temp1w=trend1w*-1;
+                if(trend1w != temp1w) System.out.print(temp1w==1?"🟢":temp1w==-1?"🔴":"-");
+
                 System.out.print(trend1d==1?" D: 🟢 ":trend1d==-1?" D: 🔴 ":" - ");
-                if(trend1d!=trend4h){
-                    if(cci1d>100 && cci1d<100+(Float.parseFloat(Filehandler.readFromFile("CCI1DUJ"))-100)/2) temp1d=trend1d*-1;
-                    if(cci1d<-100 && cci1d>-100+(Float.parseFloat(Filehandler.readFromFile("CCI1DUJ"))+100)/2) temp1d=trend1d*-1;
-                    System.out.print(temp1d==1?"🟢":temp1d==-1?"🔴":"-");
-                }
+                if(cci1d>100 && cci1d<100+(Float.parseFloat(Filehandler.readFromFile("CCI1DUJ"))-100)/2) temp1d=trend1d*-1;
+                if(cci1d<-100 && cci1d>-100+(Float.parseFloat(Filehandler.readFromFile("CCI1DUJ"))+100)/2) temp1d=trend1d*-1;
+                if(trend1d != temp1d) System.out.print(temp1d==1?"🟢":temp1d==-1?"🔴":"-");
+
                 System.out.print(trend4h==1?" 4H: 🟢 ":trend4h==-1?" 4H: 🔴 ":" - ");
-                if(trend4h!=trend30){
-                    if(cci4h>100 && cci4h<100+(Float.parseFloat(Filehandler.readFromFile("CCI4HUJ"))-100)/2) temp4h=trend4h*-1;
-                    if(cci4h<-100 && cci4h>-100+(Float.parseFloat(Filehandler.readFromFile("CCI4HUJ"))+100)/2) temp4h=trend4h*-1;
-                    System.out.print(temp4h==1?"🟢":temp4h==-1?"🔴":"-");
-                }
-                // if(trend30 == trend1d){
-                //     if(cci4h>100 && cci4h<100+(Float.parseFloat(Filehandler.readFromFile("CCI4HUJ"))-100)/2) temp4h=trend4h*-1;
-                //     if(cci4h<-100 && cci4h>-100+(Float.parseFloat(Filehandler.readFromFile("CCI4HUJ"))+100)/2) temp4h=trend4h*-1;
-                //     System.out.print(temp4h==1?"🟢":temp4h==-1?"🔴":"-");
-                // }
+                if(cci4h>100 && cci4h<100+(Float.parseFloat(Filehandler.readFromFile("CCI4HUJ"))-100)/2) temp4h=trend4h*-1;
+                if(cci4h<-100 && cci4h>-100+(Float.parseFloat(Filehandler.readFromFile("CCI4HUJ"))+100)/2) temp4h=trend4h*-1;
+                if(trend4h != temp4h) System.out.print(temp4h==1?"🟢":temp4h==-1?"🔴":"-");
+
                 System.out.print(trend30==1?" 30M: 🟢 ":trend30==-1?" 30M: 🔴 ":" - ");
-                System.out.print(" | ");
-                if(trend30 == trend1d){
-                    System.out.print(trend1d == temp4h? "ENTRY 🔥": trend1d == -1*temp4h? "EXIT ⚠️" : "");
-                }
+                // System.out.print(" | ");
+                // if(trend1w == trend1d && trend1d==temp4h && temp4h==trend30){
+                //     mailEntry=mailEntry.concat(pair+" ");
+                //     System.out.println("ENTRY 🔥");
+                // }
             }
         }
         System.out.println();
@@ -427,9 +427,17 @@ public class Main {
         String targetVals="";
         while (setVals.hasNext()) { 
             targetVals=targetVals.concat(setVals.next()+" ");
-            System.out.print(setVals.next()+" "); 
         }
-        if(!targetVals.isEmpty()) Email.sendEmail(targetVals);
+        if(!targetVals.isEmpty() && !targetVals.trim().equals(Filehandler.readFromFile("mailMsg"))){
+            Filehandler.writeToFile("mailMsg", targetVals.trim());
+            Email.sendEmail(targetVals);
+        }
+        System.out.println(targetVals+" ");
+        // if(!mailEntry.isEmpty() && !mailEntry.trim().equals(Filehandler.readFromFile("mailEntry"))){
+        //     Filehandler.writeToFile("mailEntry", mailEntry.trim());
+        //     Email.sendEmail(mailEntry);
+        // }
+        // System.out.println("New Entry: "+mailEntry);
         System.out.println();
         System.out.println(" ------------------------------------------ ");
     }

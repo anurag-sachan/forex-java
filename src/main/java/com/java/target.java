@@ -33,7 +33,7 @@ public class target {
         Filehandler.writeToTradeCSV(list, true);
     }
 
-    public static void setTargets() throws IOException{
+    public static void setTargets() throws IOException, InterruptedException{
         String file="/Users/anurag/Desktop/forex/src/main/java/com/java/data/trades.csv";
         BufferedReader br=new BufferedReader(new FileReader(file));
         String line;
@@ -42,11 +42,23 @@ public class target {
             String[] data= line.split(",");
             if(data.length==6){
                 System.out.println(line);
-                Scanner sc= new Scanner(System.in);
                 System.out.print("enter target price: ");
-                String str=sc.nextLine();
-                line=line.concat(","+str);
-                list.add(line+"\n");
+                Scanner sc= new Scanner(System.in);
+                
+                long startTime = System.currentTimeMillis();
+                while ((System.currentTimeMillis() - startTime) < 7000 && System.in.available() == 0) {
+                    Thread.sleep(1000);
+                }
+                if (System.in.available() > 0){
+                    String str=sc.nextLine();
+                    line=line.concat(","+str);
+                    list.add(line+"\n");
+                }
+                else return;
+
+                // String str=sc.nextLine();
+                // line=line.concat(","+str);
+                // list.add(line+"\n");
             }
         }
         Filehandler.writeToTradeCSV(list, true);
