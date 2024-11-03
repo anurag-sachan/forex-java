@@ -37,20 +37,19 @@ public class Main {
     
     static HashSet<String> set=new HashSet<>();
     public static void strategy() throws IOException, InterruptedException{
-        // String[] pairs={"EURUSD","GBPUSD","USDJPY"};
         String[] pairs={"XAUUSD","EURUSD","GBPUSD","USDJPY"};
         String mailEntry="";
         for(String pair : pairs){
-            float cci30m= Algo.getCCI(pair, "|30");
+            float cci15m= Algo.getCCI(pair, "|15");
             float cci4h= Algo.getCCI(pair, "|240");
             float cci1d= Algo.getCCI(pair, "");
             float cci1w= Algo.getCCI(pair, "|1W");
             
             float LTP= Algo.LTP(pair);
-            Algo.alerts(pair, LTP);
+            // mailEntry=Algo.alerts(pair, LTP, mailEntry);
             
             System.out.println();
-            System.out.printf("\n"+pair+": "+LTP+"\n"+cci1w+" "+cci1d+" "+cci4h+" "+cci30m+"\n");
+            System.out.printf("\n"+pair+": "+LTP+"\n"+cci1w+" "+cci1d+" "+cci4h+" "+cci15m+"\n");
             
             HashMap<String, List<String>> map= target.getTargetVals();
             List<String> targets= new ArrayList<>();
@@ -68,7 +67,7 @@ public class Main {
 
                 if(targets.get(0).equals("buy")){
                     // if(cci4h>100 && cci4h<100+(Float.parseFloat(Filehandler.readFromFile(symbol))-100)/2){
-                    // // if(cci30m>100 || cci4h>100 || cci1d>100 || cci1w>100){
+                    // // if(cci15m>100 || cci4h>100 || cci1d>100 || cci1w>100){
                     //     // set.add(pair);
                     //     System.out.println("🚀 CCI TARGET. TRAIL SL ⚠️");
                     // }
@@ -81,7 +80,7 @@ public class Main {
                 }
                 if(targets.get(0).equals("sell")){
                     // if(cci4h<-100 && cci4h>-100+(Float.parseFloat(Filehandler.readFromFile(symbol))+100)/2){
-                    // // if(cci30m<-100 || cci4h<-100 || cci1d<-100 || cci1w<-100){
+                    // // if(cci15m<-100 || cci4h<-100 || cci1d<-100 || cci1w<-100){
                     //     // set.add(pair);
                     //     System.out.println("🚀 CCI TARGET. TRAIL SL ⚠️");
                     // }
@@ -94,7 +93,7 @@ public class Main {
                 }
             }
 
-            // if((cci4h>90 && cci4h<110) || (cci1d>90 && cci1d<110) || (cci1w>90 && cci1w<110)) System.out.println("🔥ZONE🔥");
+            // if((cci4h>90 && cci4h<110) || (cci1d>90 && cci1d<110) || (cci1w>90 && cci1w<110)) System.out.println("ZONE🔥");
 
             // if(pair.equals("XAUUSD")){
             //     String[] vals= Filehandler.readFromFile("XU").split(" ");
@@ -133,46 +132,46 @@ public class Main {
             //     }
             // }
 
-            if(cci30m>=-100 && cci30m<=100){
-                if(pair.equals("XAUUSD") && !Filehandler.readFromFile("XU30").split("")[2].equals("0")) Filehandler.writeToFile("XU30", Filehandler.readFromFile("XU30").concat("0").substring(1, 4));
-                if(pair.equals("EURUSD") && !Filehandler.readFromFile("EU30").split("")[2].equals("0")) Filehandler.writeToFile("EU30", Filehandler.readFromFile("EU30").concat("0").substring(1, 4));
-                if(pair.equals("GBPUSD") && !Filehandler.readFromFile("GU30").split("")[2].equals("0")) Filehandler.writeToFile("GU30", Filehandler.readFromFile("GU30").concat("0").substring(1, 4));
-                if(pair.equals("USDJPY") && !Filehandler.readFromFile("UJ30").split("")[2].equals("0")) Filehandler.writeToFile("UJ30", Filehandler.readFromFile("UJ30").concat("0").substring(1, 4));
+            if(cci15m>=-100 && cci15m<=100){
+                if(pair.equals("XAUUSD") && !Filehandler.readFromFile("XU15").split("")[2].equals("0")) Filehandler.writeToFile("XU15", Filehandler.readFromFile("XU15").concat("0").substring(1, 4));
+                if(pair.equals("EURUSD") && !Filehandler.readFromFile("EU15").split("")[2].equals("0")) Filehandler.writeToFile("EU15", Filehandler.readFromFile("EU15").concat("0").substring(1, 4));
+                if(pair.equals("GBPUSD") && !Filehandler.readFromFile("GU15").split("")[2].equals("0")) Filehandler.writeToFile("GU15", Filehandler.readFromFile("GU15").concat("0").substring(1, 4));
+                if(pair.equals("USDJPY") && !Filehandler.readFromFile("UJ15").split("")[2].equals("0")) Filehandler.writeToFile("UJ15", Filehandler.readFromFile("UJ15").concat("0").substring(1, 4));
             }
-            if(cci30m<-100){
+            if(cci15m<-100){
                 if(pair.equals("XAUUSD")){
-                    if(cci30m<Float.parseFloat(Filehandler.readFromFile("CCI30XU"))) Filehandler.writeToFile("CCI30XU", String.valueOf(cci30m));
-                    if(!Filehandler.readFromFile("XU30").split("")[2].equals("1")) Filehandler.writeToFile("XU30", Filehandler.readFromFile("XU30").concat("1").substring(1, 4));
+                    if(cci15m<Float.parseFloat(Filehandler.readFromFile("CCI15XU"))) Filehandler.writeToFile("CCI15XU", String.valueOf(cci15m));
+                    if(!Filehandler.readFromFile("XU15").split("")[2].equals("1")) Filehandler.writeToFile("XU15", Filehandler.readFromFile("XU15").concat("1").substring(1, 4));
                 }
                 if(pair.equals("EURUSD")){
-                    if(cci30m<Float.parseFloat(Filehandler.readFromFile("CCI30EU"))) Filehandler.writeToFile("CCI30EU", String.valueOf(cci30m));
-                    if(!Filehandler.readFromFile("EU30").split("")[2].equals("1")) Filehandler.writeToFile("EU30", Filehandler.readFromFile("EU30").concat("1").substring(1, 4));
+                    if(cci15m<Float.parseFloat(Filehandler.readFromFile("CCI15EU"))) Filehandler.writeToFile("CCI15EU", String.valueOf(cci15m));
+                    if(!Filehandler.readFromFile("EU15").split("")[2].equals("1")) Filehandler.writeToFile("EU15", Filehandler.readFromFile("EU15").concat("1").substring(1, 4));
                 }
                 if(pair.equals("GBPUSD")){
-                    if(cci30m<Float.parseFloat(Filehandler.readFromFile("CCI30GU"))) Filehandler.writeToFile("CCI30GU", String.valueOf(cci30m));
-                    if(!Filehandler.readFromFile("GU30").split("")[2].equals("1")) Filehandler.writeToFile("GU30", Filehandler.readFromFile("GU30").concat("1").substring(1, 4));
+                    if(cci15m<Float.parseFloat(Filehandler.readFromFile("CCI15GU"))) Filehandler.writeToFile("CCI15GU", String.valueOf(cci15m));
+                    if(!Filehandler.readFromFile("GU15").split("")[2].equals("1")) Filehandler.writeToFile("GU15", Filehandler.readFromFile("GU15").concat("1").substring(1, 4));
                 }
                 if(pair.equals("USDJPY")){
-                    if(cci30m<Float.parseFloat(Filehandler.readFromFile("CCI30UJ"))) Filehandler.writeToFile("CCI30UJ", String.valueOf(cci30m));
-                    if(!Filehandler.readFromFile("UJ30").split("")[2].equals("1")) Filehandler.writeToFile("UJ30", Filehandler.readFromFile("UJ30").concat("1").substring(1, 4));
+                    if(cci15m<Float.parseFloat(Filehandler.readFromFile("CCI15UJ"))) Filehandler.writeToFile("CCI15UJ", String.valueOf(cci15m));
+                    if(!Filehandler.readFromFile("UJ15").split("")[2].equals("1")) Filehandler.writeToFile("UJ15", Filehandler.readFromFile("UJ15").concat("1").substring(1, 4));
                 }
             }
-            if(cci30m>100){
+            if(cci15m>100){
                 if(pair.equals("XAUUSD")){
-                    if(cci30m>Float.parseFloat(Filehandler.readFromFile("CCI30XU"))) Filehandler.writeToFile("CCI30XU", String.valueOf(cci30m));
-                    if(!Filehandler.readFromFile("XU30").split("")[2].equals("2")) Filehandler.writeToFile("XU30", Filehandler.readFromFile("XU30").concat("2").substring(1, 4));
+                    if(cci15m>Float.parseFloat(Filehandler.readFromFile("CCI15XU"))) Filehandler.writeToFile("CCI15XU", String.valueOf(cci15m));
+                    if(!Filehandler.readFromFile("XU15").split("")[2].equals("2")) Filehandler.writeToFile("XU15", Filehandler.readFromFile("XU15").concat("2").substring(1, 4));
                 }
                 if(pair.equals("EURUSD")){
-                    if(cci30m>Float.parseFloat(Filehandler.readFromFile("CCI30GU"))) Filehandler.writeToFile("CCI30GU", String.valueOf(cci30m));
-                    if(!Filehandler.readFromFile("EU30").split("")[2].equals("2")) Filehandler.writeToFile("EU30", Filehandler.readFromFile("EU30").concat("2").substring(1, 4));
+                    if(cci15m>Float.parseFloat(Filehandler.readFromFile("CCI15GU"))) Filehandler.writeToFile("CCI15GU", String.valueOf(cci15m));
+                    if(!Filehandler.readFromFile("EU15").split("")[2].equals("2")) Filehandler.writeToFile("EU15", Filehandler.readFromFile("EU15").concat("2").substring(1, 4));
                 }
                 if(pair.equals("GBPUSD")){
-                    if(cci30m>Float.parseFloat(Filehandler.readFromFile("CCI30EU"))) Filehandler.writeToFile("CCI30EU", String.valueOf(cci30m));
-                    if(!Filehandler.readFromFile("GU30").split("")[2].equals("2")) Filehandler.writeToFile("GU30", Filehandler.readFromFile("GU30").concat("2").substring(1, 4));
+                    if(cci15m>Float.parseFloat(Filehandler.readFromFile("CCI15EU"))) Filehandler.writeToFile("CCI15EU", String.valueOf(cci15m));
+                    if(!Filehandler.readFromFile("GU15").split("")[2].equals("2")) Filehandler.writeToFile("GU15", Filehandler.readFromFile("GU15").concat("2").substring(1, 4));
                 }
                 if(pair.equals("USDJPY")){
-                    if(cci30m>Float.parseFloat(Filehandler.readFromFile("CCI30UJ"))) Filehandler.writeToFile("CCI30UJ", String.valueOf(cci30m));
-                    if(!Filehandler.readFromFile("UJ30").split("")[2].equals("2")) Filehandler.writeToFile("UJ30", Filehandler.readFromFile("UJ30").concat("2").substring(1, 4));
+                    if(cci15m>Float.parseFloat(Filehandler.readFromFile("CCI15UJ"))) Filehandler.writeToFile("CCI15UJ", String.valueOf(cci15m));
+                    if(!Filehandler.readFromFile("UJ15").split("")[2].equals("2")) Filehandler.writeToFile("UJ15", Filehandler.readFromFile("UJ15").concat("2").substring(1, 4));
                 }
             }
 
@@ -304,9 +303,9 @@ public class Main {
                 }
             }
 
-            int trend30, trend4h, trend1d, trend1w;
+            int trend15, trend4h, trend1d, trend1w;
             if(pair.startsWith("X")){
-                trend30 = Filehandler.readFromFile("XU30").equals("102") || Filehandler.readFromFile("XU30").equals("202") || Filehandler.readFromFile("XU30").equals("010")? 1:Filehandler.readFromFile("XU30").equals("201") || Filehandler.readFromFile("XU30").equals("101") || Filehandler.readFromFile("XU30").equals("020")?-1:0;
+                trend15 = Filehandler.readFromFile("XU15").equals("102") || Filehandler.readFromFile("XU15").equals("202") || Filehandler.readFromFile("XU15").equals("010")? 1:Filehandler.readFromFile("XU15").equals("201") || Filehandler.readFromFile("XU15").equals("101") || Filehandler.readFromFile("XU15").equals("020")?-1:0;
                 trend4h = Filehandler.readFromFile("XU4H").equals("102") || Filehandler.readFromFile("XU4H").equals("202") || Filehandler.readFromFile("XU4H").equals("010")? 1:Filehandler.readFromFile("XU4H").equals("201") || Filehandler.readFromFile("XU4H").equals("101") || Filehandler.readFromFile("XU4H").equals("020")?-1:0;
                 trend1d = Filehandler.readFromFile("XU1D").equals("102") || Filehandler.readFromFile("XU1D").equals("202") || Filehandler.readFromFile("XU1D").equals("010")? 1:Filehandler.readFromFile("XU1D").equals("201") || Filehandler.readFromFile("XU1D").equals("101") || Filehandler.readFromFile("XU1D").equals("020")?-1:0;
                 trend1w = Filehandler.readFromFile("XU1W").equals("102") || Filehandler.readFromFile("XU1W").equals("202") || Filehandler.readFromFile("XU1W").equals("010")? 1:Filehandler.readFromFile("XU1W").equals("201") || Filehandler.readFromFile("XU1W").equals("101") || Filehandler.readFromFile("XU1W").equals("020")?-1:0;
@@ -326,16 +325,22 @@ public class Main {
                 if(cci4h<-100 && cci4h>-100+(Float.parseFloat(Filehandler.readFromFile("CCI4HXU"))+100)/2) temp4h=trend4h*-1;
                 if(trend4h != temp4h) System.out.print(temp4h==1?"🟢":temp4h==-1?"🔴":"-");
 
-                System.out.print(trend30==1?" 30M: 🟢 ":trend30==-1?" 30M: 🔴 ":" - ");
-                // System.out.print(" | ");
-                // if(trend1w == trend1d && trend1d==temp4h && temp4h==trend30){
-                //     mailEntry=mailEntry.concat(pair+" ");
-                //     System.out.println("ENTRY 🔥");
+                System.out.print(trend15==1?" 15M: 🟢 ":trend15==-1?" 15M: 🔴 ":" - ");
+                System.out.print(" | ");
+                boolean zone=false;
+                if(((trend1w==1 || temp1w==1) && cci1w<-80) && ((trend1d==-1 || temp1d==1) && cci1d<-80) && temp4h==1) { System.out.println("🔥 4H : BUY"); zone=true; }
+                else if(((trend1w==-1 || temp1w==-1) && cci1w>80) && ((trend1d==1 || temp1d==-1) && cci1d>80) && temp4h==-1) { System.out.println("🔥 4H : SELL"); zone=true; }
+                else if(((trend1d==1 || temp1d==1) && cci1d<-80) && ((trend4h==-1 || temp4h==1) && cci4h<-80) && (trend15==-1 && cci15m<-100)) { System.out.println("🔥 15M : BUY"); zone=true; }
+                else if(((trend1d==-1 || temp1d==-1) && cci1d>80) && ((trend4h==1 || temp4h==-1) && cci4h>80) && (trend15==1 && cci15m>100)) { System.out.println("🔥 15M : SELL"); zone=true; }
+                if(zone) mailEntry=mailEntry.concat(pair+" ");
+                // if(trend1w == trend1d && trend1d==temp4h && temp4h==trend15){
+                    // mailEntry=mailEntry.concat(pair+" ");
+                    // System.out.println("ENTRY 🔥");
                 // }
             }
             
             if(pair.startsWith("E")){
-                trend30 = Filehandler.readFromFile("EU30").equals("102") || Filehandler.readFromFile("EU30").equals("202") || Filehandler.readFromFile("EU30").equals("010")? 1:Filehandler.readFromFile("EU30").equals("201") || Filehandler.readFromFile("EU30").equals("101") || Filehandler.readFromFile("EU30").equals("020")?-1:0;
+                trend15 = Filehandler.readFromFile("EU15").equals("102") || Filehandler.readFromFile("EU15").equals("202") || Filehandler.readFromFile("EU15").equals("010")? 1:Filehandler.readFromFile("EU15").equals("201") || Filehandler.readFromFile("EU15").equals("101") || Filehandler.readFromFile("EU15").equals("020")?-1:0;
                 trend4h = Filehandler.readFromFile("EU4H").equals("102") || Filehandler.readFromFile("EU4H").equals("202") || Filehandler.readFromFile("EU4H").equals("010")? 1:Filehandler.readFromFile("EU4H").equals("201") || Filehandler.readFromFile("EU4H").equals("101") || Filehandler.readFromFile("EU4H").equals("020")?-1:0;
                 trend1d = Filehandler.readFromFile("EU1D").equals("102") || Filehandler.readFromFile("EU1D").equals("202") || Filehandler.readFromFile("EU1D").equals("010")? 1:Filehandler.readFromFile("EU1D").equals("201") || Filehandler.readFromFile("EU1D").equals("101") || Filehandler.readFromFile("EU1D").equals("020")?-1:0;
                 trend1w = Filehandler.readFromFile("EU1W").equals("102") || Filehandler.readFromFile("EU1W").equals("202") || Filehandler.readFromFile("EU1W").equals("010")? 1:Filehandler.readFromFile("EU1W").equals("201") || Filehandler.readFromFile("EU1W").equals("101") || Filehandler.readFromFile("EU1W").equals("020")?-1:0;
@@ -355,16 +360,23 @@ public class Main {
                 if(cci4h<-100 && cci4h>-100+(Float.parseFloat(Filehandler.readFromFile("CCI4HEU"))+100)/2) temp4h=trend4h*-1;
                 if(trend4h != temp4h) System.out.print(temp4h==1?"🟢":temp4h==-1?"🔴":"-");
 
-                System.out.print(trend30==1?" 30M: 🟢 ":trend30==-1?" 30M: 🔴":" - ");
-                // System.out.print(" | ");
-                // if(trend1w == trend1d && trend1d==temp4h && temp4h==trend30){
-                //     mailEntry=mailEntry.concat(pair+" ");
-                //     System.out.println("ENTRY 🔥");
+                System.out.print(trend15==1?" 15M: 🟢 ":trend15==-1?" 15M: 🔴":" - ");
+                System.out.print(" | ");
+                boolean zone=false;
+                if(((trend1w==1 || temp1w==1) && cci1w<-80) && ((trend1d==-1 || temp1d==1) && cci1d<-80) && temp4h==1) { System.out.println("🔥 4H : BUY"); zone=true; }
+                else if(((trend1w==-1 || temp1w==-1) && cci1w>80) && ((trend1d==1 || temp1d==-1) && cci1d>80) && temp4h==-1) { System.out.println("🔥 4H : SELL"); zone=true; }
+                else if(((trend1d==1 || temp1d==1) && cci1d<-80) && ((trend4h==-1 || temp4h==1) && cci4h<-80) && (trend15==-1 && cci15m<-100)) { System.out.println("🔥 15M : BUY"); zone=true; }
+                else if(((trend1d==-1 || temp1d==-1) && cci1d>80) && ((trend4h==1 || temp4h==-1) && cci4h>80) && (trend15==1 && cci15m>100)) { System.out.println("🔥 15M : SELL"); zone=true; }
+                if(zone) mailEntry=mailEntry.concat(pair+" ");
+                // if(((trend1w==1 && trend1d==-1 && cci1d<-100 && temp4h==1) || (trend1w==-1 && trend1d==1 && cci1d<100 && temp4h==-1)) || (trend1d==1 && trend4h==-1 && cci4h<-100 && trend15==1) || (trend1d==-1 && trend4h==1 && cci4h<100 && trend15==-1)){
+                // if(trend1w == trend1d && trend1d==temp4h && temp4h==trend15){
+                    // mailEntry=mailEntry.concat(pair+" ");
+                    // System.out.println("ENTRY 🔥");
                 // }
             }
 
             if(pair.startsWith("G")){
-                trend30 = Filehandler.readFromFile("GU30").equals("102") || Filehandler.readFromFile("GU30").equals("202") || Filehandler.readFromFile("GU30").equals("010")? 1:Filehandler.readFromFile("GU30").equals("201") || Filehandler.readFromFile("GU30").equals("101") || Filehandler.readFromFile("GU30").equals("020")?-1:0;
+                trend15 = Filehandler.readFromFile("GU15").equals("102") || Filehandler.readFromFile("GU15").equals("202") || Filehandler.readFromFile("GU15").equals("010")? 1:Filehandler.readFromFile("GU15").equals("201") || Filehandler.readFromFile("GU15").equals("101") || Filehandler.readFromFile("GU15").equals("020")?-1:0;
                 trend4h = Filehandler.readFromFile("GU4H").equals("102") || Filehandler.readFromFile("GU4H").equals("202") || Filehandler.readFromFile("GU4H").equals("010")? 1:Filehandler.readFromFile("GU4H").equals("201") || Filehandler.readFromFile("GU4H").equals("101") || Filehandler.readFromFile("GU4H").equals("020")?-1:0;
                 trend1d = Filehandler.readFromFile("GU1D").equals("102") || Filehandler.readFromFile("GU1D").equals("202") || Filehandler.readFromFile("GU1D").equals("010")? 1:Filehandler.readFromFile("GU1D").equals("201") || Filehandler.readFromFile("GU1D").equals("101") || Filehandler.readFromFile("GU1D").equals("020")?-1:0;
                 trend1w = Filehandler.readFromFile("GU1W").equals("102") || Filehandler.readFromFile("GU1W").equals("202") || Filehandler.readFromFile("GU1W").equals("010")? 1:Filehandler.readFromFile("GU1W").equals("201") || Filehandler.readFromFile("GU1W").equals("101") || Filehandler.readFromFile("GU1W").equals("020")?-1:0;
@@ -384,16 +396,23 @@ public class Main {
                 if(cci4h<-100 && cci4h>-100+(Float.parseFloat(Filehandler.readFromFile("CCI4HGU"))+100)/2) temp4h=trend4h*-1;
                 if(trend4h != temp4h) System.out.print(temp4h==1?"🟢":temp4h==-1?"🔴":"-");
 
-                System.out.print(trend30==1?" 30M: 🟢 ":trend30==-1?" 30M: 🔴 ":" - ");
-                // System.out.print(" | ");
-                // if(trend1w == trend1d && trend1d==temp4h && temp4h==trend30){
-                //     mailEntry=mailEntry.concat(pair+" ");
+                System.out.print(trend15==1?" 15M: 🟢 ":trend15==-1?" 15M: 🔴 ":" - ");
+                System.out.print(" | ");
+                boolean zone=false;
+                if(((trend1w==1 || temp1w==1) && cci1w<-80) && ((trend1d==-1 || temp1d==1) && cci1d<-80) && temp4h==1) { System.out.println("🔥 4H : BUY"); zone=true; }
+                else if(((trend1w==-1 || temp1w==-1) && cci1w>80) && ((trend1d==1 || temp1d==-1) && cci1d>80) && temp4h==-1) { System.out.println("🔥 4H : SELL"); zone=true; }
+                else if(((trend1d==1 || temp1d==1) && cci1d<-80) && ((trend4h==-1 || temp4h==1) && cci4h<-80) && (trend15==-1 && cci15m<-100)) { System.out.println("🔥 15M : BUY"); zone=true; }
+                else if(((trend1d==-1 || temp1d==-1) && cci1d>80) && ((trend4h==1 || temp4h==-1) && cci4h>80) && (trend15==1 && cci15m>100)) { System.out.println("🔥 15M : SELL"); zone=true; }
+                if(zone) mailEntry=mailEntry.concat(pair+" ");
+                // if(((trend1w==1 && trend1d==-1 && cci1d<-100 && temp4h==1) || (trend1w==-1 && trend1d==1 && cci1d<100 && temp4h==-1)) || (trend1d==1 && trend4h==-1 && cci4h<-100 && trend15==1) || (trend1d==-1 && trend4h==1 && cci4h<100 && trend15==-1)){
+                // if(trend1w == trend1d && trend1d==temp4h && temp4h==trend15){
+                    // mailEntry=mailEntry.concat(pair+" ");
                 //     System.out.println("ENTRY 🔥");
                 // }
             }
 
             if(pair.startsWith("U")){
-                trend30 = Filehandler.readFromFile("UJ30").equals("102") || Filehandler.readFromFile("UJ30").equals("202") || Filehandler.readFromFile("UJ30").equals("010")? 1:Filehandler.readFromFile("UJ30").equals("201") || Filehandler.readFromFile("UJ30").equals("101") || Filehandler.readFromFile("UJ30").equals("020")?-1:0;
+                trend15 = Filehandler.readFromFile("UJ15").equals("102") || Filehandler.readFromFile("UJ15").equals("202") || Filehandler.readFromFile("UJ15").equals("010")? 1:Filehandler.readFromFile("UJ15").equals("201") || Filehandler.readFromFile("UJ15").equals("101") || Filehandler.readFromFile("UJ15").equals("020")?-1:0;
                 trend4h = Filehandler.readFromFile("UJ4H").equals("102") || Filehandler.readFromFile("UJ4H").equals("202") || Filehandler.readFromFile("UJ4H").equals("010")? 1:Filehandler.readFromFile("UJ4H").equals("201") || Filehandler.readFromFile("UJ4H").equals("101") || Filehandler.readFromFile("UJ4H").equals("020")?-1:0;
                 trend1d = Filehandler.readFromFile("UJ1D").equals("102") || Filehandler.readFromFile("UJ1D").equals("202") || Filehandler.readFromFile("UJ1D").equals("010")? 1:Filehandler.readFromFile("UJ1D").equals("201") || Filehandler.readFromFile("UJ1D").equals("101") || Filehandler.readFromFile("UJ1D").equals("020")?-1:0;
                 trend1w = Filehandler.readFromFile("UJ1W").equals("102") || Filehandler.readFromFile("UJ1W").equals("202") || Filehandler.readFromFile("UJ1W").equals("010")? 1:Filehandler.readFromFile("UJ1W").equals("201") || Filehandler.readFromFile("UJ1W").equals("101") || Filehandler.readFromFile("UJ1W").equals("020")?-1:0;
@@ -413,10 +432,17 @@ public class Main {
                 if(cci4h<-100 && cci4h>-100+(Float.parseFloat(Filehandler.readFromFile("CCI4HUJ"))+100)/2) temp4h=trend4h*-1;
                 if(trend4h != temp4h) System.out.print(temp4h==1?"🟢":temp4h==-1?"🔴":"-");
 
-                System.out.print(trend30==1?" 30M: 🟢 ":trend30==-1?" 30M: 🔴 ":" - ");
-                // System.out.print(" | ");
-                // if(trend1w == trend1d && trend1d==temp4h && temp4h==trend30){
-                //     mailEntry=mailEntry.concat(pair+" ");
+                System.out.print(trend15==1?" 15M: 🟢 ":trend15==-1?" 15M: 🔴 ":" - ");
+                System.out.print(" | ");
+                boolean zone=false;
+                if(((trend1w==1 || temp1w==1) && cci1w<-80) && ((trend1d==-1 || temp1d==1) && cci1d<-80) && temp4h==1) { System.out.println("🔥 4H : BUY"); zone=true; }
+                else if(((trend1w==-1 || temp1w==-1) && cci1w>80) && ((trend1d==1 || temp1d==-1) && cci1d>80) && temp4h==-1) { System.out.println("🔥 4H : SELL"); zone=true; }
+                else if(((trend1d==1 || temp1d==1) && cci1d<-80) && ((trend4h==-1 || temp4h==1) && cci4h<-80) && (trend15==-1 && cci15m<-100)) { System.out.println("🔥 15M : BUY"); zone=true; }
+                else if(((trend1d==-1 || temp1d==-1) && cci1d>80) && ((trend4h==1 || temp4h==-1) && cci4h>80) && (trend15==1 && cci15m>100)) { System.out.println("🔥 15M : SELL"); zone=true; }
+                if(zone) mailEntry=mailEntry.concat(pair+" ");
+                // if(((trend1w==1 && trend1d==-1 && cci1d<-100 && temp4h==1) || (trend1w==-1 && trend1d==1 && cci1d<100 && temp4h==-1)) || (trend1d==1 && trend4h==-1 && cci4h<-100 && trend15==1) || (trend1d==-1 && trend4h==1 && cci4h<100 && trend15==-1)){
+                // if(trend1w == trend1d && trend1d==temp4h && temp4h==trend15){
+                    // mailEntry=mailEntry.concat(pair+" ");
                 //     System.out.println("ENTRY 🔥");
                 // }
             }
@@ -430,13 +456,15 @@ public class Main {
         }
         if(!targetVals.isEmpty() && !targetVals.trim().equals(Filehandler.readFromFile("mailMsg"))){
             Filehandler.writeToFile("mailMsg", targetVals.trim());
-            Email.sendEmail(targetVals);
+            // Email.sendEmail(targetVals);
         }
         System.out.println(targetVals+" ");
-        // if(!mailEntry.isEmpty() && !mailEntry.trim().equals(Filehandler.readFromFile("mailEntry"))){
-        //     Filehandler.writeToFile("mailEntry", mailEntry.trim());
-        //     Email.sendEmail(mailEntry);
-        // }
+        System.out.println(mailEntry);
+        System.out.println(Filehandler.readFromFile("mailEntry"));
+        if(!mailEntry.isEmpty() && !mailEntry.trim().equals(Filehandler.readFromFile("mailEntry"))){
+            Filehandler.writeToFile("mailEntry", mailEntry.trim());
+            Email.sendEmail(mailEntry);
+        }
         // System.out.println("New Entry: "+mailEntry);
         System.out.println();
         System.out.println(" ------------------------------------------ ");

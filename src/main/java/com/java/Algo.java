@@ -73,7 +73,7 @@ public class Algo {
         return val;
     }
 
-    public static void alerts(String pair, float LTP) throws IOException, InterruptedException {
+    public static String alerts(String pair, float LTP, String mailEntry) throws IOException, InterruptedException {
         String symbol="";
         if(pair.startsWith("X")) symbol="XU";
         if(pair.startsWith("E")) symbol="EU";
@@ -99,8 +99,14 @@ public class Algo {
         // } else{
             String[] vals= Filehandler.readFromFile(symbol).split(" ");
             for(String val: vals){
-                if((val.charAt(0)=='G' && LTP>Float.parseFloat(val.substring(1))) || (val.charAt(0)=='L' && LTP<Float.parseFloat(val.substring(1)))) System.out.printf("⚠️ ALERT TRIGGERED : %s @ %f:",pair,val);
+                if((val.charAt(0)=='G' && LTP>Float.parseFloat(val.substring(1))) || (val.charAt(0)=='L' && LTP<Float.parseFloat(val.substring(1)))){
+                    System.out.println();
+                    System.out.printf("\n⚠️ ALERT TRIGGERED : %s @ %f",pair,Float.parseFloat(val.substring(1)));
+                    // mailEntry=mailEntry+pair+"@"+val.substring(1)+"\n";
+                    mailEntry=mailEntry+pair+"@"+val.substring(1)+" ";
+                }
             }
         // }
+        return mailEntry;
     }
 }

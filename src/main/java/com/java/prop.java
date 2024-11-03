@@ -30,7 +30,7 @@ public class prop {
         String propCookie = props.getProperty("op-cookie");
         
         try {
-            String url = "https://backend.fundingpips.com/api/trading_accounts/100051131/open_positions?page=1";
+            String url = "https://backend.fundingpips.com/api/trading_accounts/1447378/open_positions?page=1";
             List<List<String>> list = new ArrayList<>();
             HttpRequest request = HttpRequest.newBuilder()
             .GET()
@@ -55,7 +55,7 @@ public class prop {
                 long startTime = System.currentTimeMillis();
                 System.out.print("Enter latest Open Position Cookies: ");
                 Scanner sc=new Scanner(System.in);
-                while ((System.currentTimeMillis() - startTime) < 7000 && System.in.available() == 0) {
+                while ((System.currentTimeMillis() - startTime) < 5000 && System.in.available() == 0) {
                     Thread.sleep(1000);
                 }
                 if (System.in.available() > 0){
