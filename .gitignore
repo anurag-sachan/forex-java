@@ -1,3 +1,4 @@
 config.properties
 .DS_Store
 .vscode
+target

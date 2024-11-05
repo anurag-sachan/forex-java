@@ -76,10 +76,9 @@ public class Algo {
     public static String alerts(String pair, float LTP, String mailEntry) throws IOException, InterruptedException {
         String symbol="";
         if(pair.startsWith("X")) symbol="XU";
-        if(pair.startsWith("E")) symbol="EU";
-        if(pair.startsWith("G")) symbol="GU";
-        if(pair.startsWith("U")) symbol="UJ";
-
+        else if(pair.startsWith("E")) symbol="EU";
+        else if(pair.startsWith("G")) symbol="GU";
+        else if(pair.startsWith("U")) symbol="UJ";
         // if(Filehandler.readFromFile(symbol).equals("0")){
         //     System.out.printf("\n\nEnter alert price for %s :",pair);
         //     Scanner sc= new Scanner(System.in);
@@ -97,13 +96,15 @@ public class Algo {
         //     }
         //     else return;
         // } else{
-            String[] vals= Filehandler.readFromFile(symbol).split(" ");
-            for(String val: vals){
-                if((val.charAt(0)=='G' && LTP>Float.parseFloat(val.substring(1))) || (val.charAt(0)=='L' && LTP<Float.parseFloat(val.substring(1)))){
-                    System.out.println();
-                    System.out.printf("\n⚠️ ALERT TRIGGERED : %s @ %f",pair,Float.parseFloat(val.substring(1)));
-                    // mailEntry=mailEntry+pair+"@"+val.substring(1)+"\n";
-                    mailEntry=mailEntry+pair+"@"+val.substring(1)+" ";
+            if(!Filehandler.readFromFile(symbol).equals("0")){
+                String[] vals= Filehandler.readFromFile(symbol).split(" ");
+                for(String val: vals){
+                    if((val.charAt(0)=='G' && LTP>Float.parseFloat(val.substring(1))) || (val.charAt(0)=='L' && LTP<Float.parseFloat(val.substring(1)))){
+                        System.out.println();
+                        System.out.printf("\n⚠️ ALERT TRIGGERED : %s @ %f",pair,Float.parseFloat(val.substring(1)));
+                        // mailEntry=mailEntry+pair+"@"+val.substring(1)+"\n";
+                        mailEntry=mailEntry+pair+"@"+val.substring(1)+" ";
+                    }
                 }
             }
         // }
