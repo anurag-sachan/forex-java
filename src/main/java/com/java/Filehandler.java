@@ -3,9 +3,11 @@ package com.java;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class Filehandler {
@@ -64,21 +66,53 @@ public class Filehandler {
         }
     }
 
-    public static void writeToOPCSV(List<List<String>> op, boolean append) throws IOException {
-        String csvFile = "/Users/anurag/Desktop/forex/src/main/java/com/java/data/op.csv";
+    public static void writeToFronttestCSV(String pair, float cci1W, float cci1D, float cci4H, float cci15M, float LTP, String time, String condition, boolean append) throws IOException {
+        String csvFile = "/Users/anurag/Desktop/forex/src/main/java/com/java/data/Fronttest.csv";
         try (FileWriter csvWriter = new FileWriter(csvFile, append)) {
-            for (List<String> position : op) {
-                csvWriter.append(String.format("%s,%s,%s,%s,%s,%s\n",
-                position.get(0),position.get(1),position.get(2),position.get(3),position.get(4),position.get(5)));
-            }
+            csvWriter.append(String.format("%s,%.2f,%.2f,%.2f,%.2f,%.2f,%s,%s\n", pair, cci1W, cci1D, cci4H, cci15M, LTP, time, condition));
         }
     }
 
-    public static void writeToTradeCSV(List<String> list, boolean append) throws IOException {
-        String csvFile = "/Users/anurag/Desktop/forex/src/main/java/com/java/data/trades.csv";
+    public static void writeToOpenPositions(String pair, String exitCondition, String orderSide, float volume, float slPips, boolean append) throws IOException {
+        String csvFile = "/Users/anurag/Desktop/forex/src/main/java/com/java/data/OpenPositions.csv";
         try (FileWriter csvWriter = new FileWriter(csvFile, append)) {
-            for (String position : list) {
-                csvWriter.append(position);
+            csvWriter.append(String.format("%s,%s,%s,%.2f\n", pair, exitCondition, orderSide, volume));
+        }
+    }
+
+    public static List<String[]> readFromOpenPositions() throws IOException {
+        List<String[]> data = new ArrayList<>();
+        String csvFile = "/Users/anurag/Desktop/forex/src/main/java/com/java/data/OpenPositions.csv";
+        try (BufferedReader br = new BufferedReader(new FileReader(csvFile))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                data.add(line.split(","));
+            }
+        }
+        return data;
+    }
+
+    public static List<String[]> readFromTempTrades() throws FileNotFoundException, IOException {
+        List<String[]> data = new ArrayList<>();
+        String csvFile = "/Users/anurag/Desktop/forex/src/main/java/com/java/data/TempTrades.csv";
+        try (BufferedReader br = new BufferedReader(new FileReader(csvFile))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                data.add(line.split(","));
+            }
+        }
+        return data;
+    }
+
+    public static void writeToTempTrades(List<String[]> remTrades) throws IOException {
+        String csvFile = "/Users/anurag/Desktop/forex/src/main/java/com/java/data/TempTrades.csv";
+        try (FileWriter csvWriter = new FileWriter(csvFile, false)) {
+            if (remTrades != null && !remTrades.isEmpty()) {
+                for (String[] trade : remTrades) {
+                    String OpenPrice = trade[0];
+                    String SL = trade[1];
+                    csvWriter.append(String.format("%s,%s\n", OpenPrice, SL));
+                }
             }
         }
     }
