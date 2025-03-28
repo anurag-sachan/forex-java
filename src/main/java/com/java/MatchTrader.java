@@ -13,15 +13,25 @@ public class MatchTrader {
     public static void login() throws IOException {
         OkHttpClient client = new OkHttpClient();
         MediaType mediaType = MediaType.parse("application/json");
+        // + "\"email\": \"demo+FTP@fundedtradingplus.com\","
+        // + "\"password\": \"FTPNewPW2023!F$\","
+
+        // String json = "{"
+        //     + "\"email\": \"dovagib517@btcours.com\","
+        //     + "\"password\": \"hcnff9mwngcs\","
+        //     + "\"brokerId\": \"28\""
+        //     + "}";
+
         String json = "{"
-            + "\"email\": \"demo+FTP@fundedtradingplus.com\","
-            + "\"password\": \"FTPNewPW2023!F$\","
+            + "\"email\": \"connect2anurags@gmail.com\","
+            + "\"password\": \"03b58837a6\","
             + "\"brokerId\": \"1\""
             + "}";
         
         RequestBody body = RequestBody.create(mediaType, json);
         Request request = new Request.Builder()
-            .url("https://mtr.gooeytrade.com/mtr-core-edge/login")
+            // .url("https://mtt.ftuk.com/mtr-core-edge/login")
+            .url("https://mtr-competition.fundingpips.com/mtr-core-edge/login")
             .post(body)
             .addHeader("Content-Type", "application/json")
             .build();
@@ -40,7 +50,8 @@ public class MatchTrader {
                 JsonNode tradingAccounts = rootNode.get("tradingAccounts");
                 
                 for (JsonNode account : tradingAccounts) {
-                    if (account.get("tradingAccountId").asText().equals("10445")) {
+                    // if (account.get("tradingAccountId").asText().equals("520408")) {
+                    if (account.get("tradingAccountId").asText().equals("100279910")) {
                         systemUuid = account.get("offer").get("system").get("uuid").asText();
                         tradingApiToken = account.get("tradingApiToken").asText();
                         break;
@@ -59,7 +70,7 @@ public class MatchTrader {
         String res="";
         boolean success=false;
         while (!success) {
-        String url = "https://mtr.gooeytrade.com/mtr-api/" + Filehandler.readFromFile("systemUuid") + "/balance";
+        String url = "https://mtr-competition.fundingpips.com/mtr-api/" + Filehandler.readFromFile("systemUuid") + "/balance";
         
         Request request = new Request.Builder()
             .url(url)
@@ -86,7 +97,7 @@ public class MatchTrader {
         boolean success = false;
         
         while (!success) {
-            String url = "https://mtr.gooeytrade.com/mtr-api/" + 
+            String url = "https://mtr-competition.fundingpips.com/mtr-api/" + 
             Filehandler.readFromFile("systemUuid") + 
             "/candles?symbol=EURUSD&interval=" + interval;
             
@@ -126,7 +137,7 @@ public class MatchTrader {
         boolean success = false;
         
         while (!success) {
-            String url = "https://mtr.gooeytrade.com/mtr-api/" + 
+            String url = "https://mtr-competition.fundingpips.com/mtr-api/" + 
             Filehandler.readFromFile("systemUuid") + 
             "/candles?symbol=EURUSD&interval=M1";
             
@@ -167,7 +178,7 @@ public class MatchTrader {
             long endTimestamp = Long.parseLong(endTime);
             
             while (!success) {
-                String url = "https://mtr.gooeytrade.com/mtr-api/" + 
+                String url = "https://mtr-competition.fundingpips.com/mtr-api/" + 
                 Filehandler.readFromFile("systemUuid") + 
                 "/candles?symbol=EURUSD&interval=M1";
                 
@@ -220,7 +231,7 @@ public class MatchTrader {
         long endTimestamp = Long.parseLong(endTime);
         
         while (!success) {
-            String url = "https://mtr.gooeytrade.com/mtr-api/" +
+            String url = "https://mtr-competition.fundingpips.com/mtr-api/" +
             Filehandler.readFromFile("systemUuid") +
             "/candles?symbol=EURUSD&interval=M1";
             
@@ -275,7 +286,7 @@ public class MatchTrader {
         String res="";
         boolean success=false;
         while (!success) {
-            String url = "https://mtr.gooeytrade.com/mtr-api/" + Filehandler.readFromFile("systemUuid") + "/open-positions";
+            String url = "https://mtr-competition.fundingpips.com/mtr-api/" + Filehandler.readFromFile("systemUuid") + "/open-positions";
             
             Request request = new Request.Builder()
             .url(url)
@@ -295,13 +306,13 @@ public class MatchTrader {
         return res;
     }
 
-    public static List<Double> getOpenPrices() throws IOException {
+    public static List<Double[]> getOpenPrices(String pair) throws IOException {
         OkHttpClient client = new OkHttpClient();
-        List<Double> openPrices = new ArrayList<>();
+        List<Double[]> OPSL = new ArrayList<>();
         boolean success = false;
         
         while (!success) {
-            String url = "https://mtr.gooeytrade.com/mtr-api/" + 
+            String url = "https://mtr-competition.fundingpips.com/mtr-api/" + 
                         Filehandler.readFromFile("systemUuid") + "/open-positions";
                         
             Request request = new Request.Builder()
@@ -318,15 +329,20 @@ public class MatchTrader {
                     JsonNode positions = rootNode.get("positions");
                     
                     for (JsonNode position : positions) {
-                        double openPrice = position.get("openPrice").asDouble();
-                        openPrices.add(openPrice);
+                        String symbol = position.get("symbol").asText();
+                        if(symbol.equalsIgnoreCase(pair)){
+                            Double[] opslVals=new Double[2];
+                            opslVals[0] = position.get("openPrice").asDouble();
+                            opslVals[1] = position.get("stopLoss").asDouble();
+                            OPSL.add(opslVals);
+                        }
                     }
                     success = true;
                 }
                 if (!success) login();
             }
         }
-        return openPrices;
+        return OPSL;
     }
 
     public double cumulativeSL() throws IOException, InterruptedException {
@@ -365,13 +381,13 @@ public class MatchTrader {
         boolean success=false;
         while (!success) {
         MediaType mediaType = MediaType.parse("application/json");
-        String url = "https://mtr.gooeytrade.com/mtr-api/" + Filehandler.readFromFile("systemUuid") + "/position/open";
+        String url = "https://mtr-competition.fundingpips.com/mtr-api/" + Filehandler.readFromFile("systemUuid") + "/position/open";
 
         String json = String.format(
-            // "{\"instrument\":\"%s\",\"volume\":%f,\"orderSide\":\"%s\",\"slPrice\":%f,\"isMobile\":false}",
-            // symbol, volume, orderSide, SL
-            "{\"instrument\":\"%s\",\"volume\":%f,\"price\":%f,\"orderSide\":\"%s\",\"slPrice\":%f,\"isMobile\":false}",
-            symbol, volume, price, orderSide, SL
+            "{\"instrument\":\"%s\",\"volume\":%f,\"orderSide\":\"%s\",\"slPrice\":%f,\"isMobile\":false}",
+            symbol, volume, orderSide, SL
+            // "{\"instrument\":\"%s\",\"volume\":%f,\"price\":%f,\"orderSide\":\"%s\",\"slPrice\":%f,\"isMobile\":false}",
+            // symbol, volume, price, orderSide, SL
         );
         
         RequestBody body = RequestBody.create(json, mediaType);
@@ -406,7 +422,7 @@ public class MatchTrader {
         boolean success=false;
         while (!success) {
         MediaType mediaType = MediaType.parse("application/json");
-        String url = "https://mtr.gooeytrade.com/mtr-api/" + Filehandler.readFromFile("systemUuid") + "/position/close-partially";
+        String url = "https://mtr-competition.fundingpips.com/mtr-api/" + Filehandler.readFromFile("systemUuid") + "/position/close-partially";
 
         volume=(float)Math.floor(volume*100)/100;
         String json = String.format(
@@ -438,7 +454,7 @@ public class MatchTrader {
         String res="";
         boolean success=false;
         while (!success) {
-        String url = "https://mtr.gooeytrade.com/mtr-api/" + Filehandler.readFromFile("systemUuid") + "/position/" + positionId;
+        String url = "https://mtr-competition.fundingpips.com/mtr-api/" + Filehandler.readFromFile("systemUuid") + "/position/" + positionId;
 
         Request request = new Request.Builder()
             .url(url)

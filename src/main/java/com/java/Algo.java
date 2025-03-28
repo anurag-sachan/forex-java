@@ -39,7 +39,8 @@ public class Algo {
         String fields = "close";
         String encodedFields = URLEncoder.encode(fields, StandardCharsets.UTF_8);
         String url = baseURL + "?symbol=FX:" + encodedSymbol + "&fields=" + encodedFields+ "&no_404=true";
-
+        if(symbol.equals("FX_IDC:USDAUD") || symbol.equals("FX_IDC:USDNZD") || symbol.equals("OANDA:US30USD") || symbol.equals("TVC:SILVER") || symbol.equals("SP:SPX") || symbol.equals("OANDA:AU200AUD")) url = baseURL + "?symbol=" + encodedSymbol + "&fields=" + encodedFields+ "&no_404=true";
+        
         float val=0;
         boolean success=false;
         while (!success) {
@@ -67,6 +68,7 @@ public class Algo {
         String fields = "CCI20"+time;
         String encodedFields = URLEncoder.encode(fields, StandardCharsets.UTF_8);
         String url = baseURL + "?symbol=FX:" + encodedSymbol + "&fields=" + encodedFields+ "&no_404=true";
+        if(symbol.equals("FX_IDC:USDAUD") || symbol.equals("FX_IDC:USDNZD") || symbol.equals("OANDA:US30USD") || symbol.equals("TVC:SILVER") || symbol.equals("SP:SPX") || symbol.equals("OANDA:AU200AUD")) url = baseURL + "?symbol=" + encodedSymbol + "&fields=" + encodedFields+ "&no_404=true";
         
         float val=0;
         boolean success=false;
@@ -95,6 +97,7 @@ public class Algo {
         String fields = "EMA200"+time;
         String encodedFields = URLEncoder.encode(fields, StandardCharsets.UTF_8);
         String url = baseURL + "?symbol=FX:" + encodedSymbol + "&fields=" + encodedFields+ "&no_404=true";
+        if(symbol.equals("FX_IDC:USDAUD") || symbol.equals("FX_IDC:USDNZD") || symbol.equals("OANDA:US30USD") || symbol.equals("TVC:SILVER") || symbol.equals("SP:SPX") || symbol.equals("OANDA:AU200AUD")) url = baseURL + "?symbol=" + encodedSymbol + "&fields=" + encodedFields+ "&no_404=true";
         
         float val=0;
         boolean success=false;
@@ -155,17 +158,59 @@ public class Algo {
     }
 
     // public static Float calculatePositionSize(double moneyToRisk, double pipAtRisk, double lotSize, double onePipSize, double rate) {
-    public static Float calculatePositionSize(String symbol, float moneyToRisk, float pipAtRisk) {
+    public static Float calculatePositionSize(String symbol, float LTP, float moneyToRisk, float pipAtRisk) throws IOException, InterruptedException {
+
+        moneyToRisk=23.11f;
 
         float lotSize = 0;
         float onePipSize = 0;
         float rate = 0;
 
-        if(symbol.equals("EURUSD")){
-            lotSize = 100000.0f;
-            onePipSize = 0.0001f;
+        onePipSize = 0.0001f;
+        lotSize = 100000.0f;
+        
+        if(symbol.equals("NZDCAD")){
+            rate = LTP("USDCAD");
+        }
+        else if(symbol.equals("USDMXN")){
+            rate = LTP;
+            // rate = LTP("USDMXN");
+        }
+        else if(symbol.equals("EURUSD")){
             rate = 1.0f;
         }
+        else if(symbol.equals("GBPUSD")){
+            rate = 1.0f;
+        }
+        else if(symbol.equals("GBPNZD")){
+            rate = LTP("FX_IDC:USDNZD");
+        }
+        else if(symbol.equals("NZDCHF")){
+            rate = LTP("USDCHF");
+        }
+        else if(symbol.equals("USDJPY")){
+            rate = LTP;
+            // rate = LTP("USDJPY");
+        }
+        else if(symbol.equals("USDCHF")){
+            rate = LTP;
+            // rate = LTP("USDCHF");
+        }
+        else if(symbol.equals("USDCAD")){
+            rate = LTP;
+            // rate = LTP("USDCAD");
+        }
+        else if(symbol.equals("USDHKB")){
+            rate = LTP;
+            // rate = LTP("USDHKB");
+        }
+        else if(symbol.equals("XAGUSD")){
+            rate = 1.0f;
+        }
+        else if(symbol.equals("OANDA:AU200AUD")){
+            rate = LTP("USDAUD");
+        }
+
 
         float valuePerPip = (lotSize * onePipSize) / rate;
         float positionSize = moneyToRisk / (pipAtRisk * valuePerPip);
@@ -321,10 +366,43 @@ public class Algo {
         return sl;
     }
 
-    public static boolean positionAlreadyExists(List<Double> openPrices, float sl){
-        for(Double openPrice: openPrices){
-            if(openPrice>=sl) return true;
+    public static String alert(String pair, Float LTP) throws FileNotFoundException, IOException{
+        String csvFile = "/Users/anurag/Desktop/forex/src/main/java/com/java/data/alerts.csv";
+        String alertStr="";
+        try (BufferedReader br = new BufferedReader(new FileReader(csvFile))) {
+            String line;
+            List<String> lines= new ArrayList<>();
+            while ((line = br.readLine()) != null) {
+                if(line.split(" ")[0].equals(pair)){
+                    String updatedLine=line.split(" ")[0];
+                    for(String str: line.split(" ")){
+                        if(!str.equalsIgnoreCase(pair)){
+                            if((str.startsWith("a") || str.startsWith("A")) && Double.parseDouble(str.substring(1)) < LTP){
+                                alertStr = "SELL 🔥 "+ str.substring(1) + " " + pair;
+                            }
+                            else if((str.startsWith("b") || str.startsWith("B")) && Double.parseDouble(str.substring(1)) > LTP){
+                                alertStr = "BUY 💚 "+ str.substring(1) + " " + pair;
+                            }
+                            else updatedLine+=" "+str;
+                        }
+                    }
+                    lines.add(updatedLine);
+                }
+                else lines.add(line);
+            }
+            writeToAlerts(lines);
         }
-        return false;
+        return alertStr;
+    }
+
+    public static void writeToAlerts(List<String> alerts) throws IOException {
+        String csvFile = "/Users/anurag/Desktop/forex/src/main/java/com/java/data/alerts.csv";
+        try (FileWriter csvWriter = new FileWriter(csvFile, false)) {
+            if (alerts != null && !alerts.isEmpty()) {
+                for (String alert : alerts) {
+                    csvWriter.append(String.format("%s\n", alert));
+                }
+            }
+        }
     }
 }
