@@ -5,7 +5,7 @@
 - Clone the repository.
   
   ```shell
-  git clone https://github.com/anurag-sachan/Rust-TradingView-Stock-Screener.git
+  git clone https://github.com/anurag-sachan/forex-java.git
   ```
 
 - Pre-requisites :
